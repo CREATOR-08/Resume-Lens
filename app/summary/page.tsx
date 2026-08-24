@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import React, { useMemo, useState, useEffect } from "react";
 
 import PremiumAnalysisButton from "@/components/PremiumAnalysisButton";
@@ -134,7 +135,9 @@ function BarChart({ title, data, suffix = "%" }:{title:string;data:{ name: strin
 export default function ResumeMatchSummary() {
   const [premiumResponse, setPremiumResponse] = useState<any>(null);
   const result: any = useAnalysisStore((state) => state.result);
+  const searchParams = useSearchParams();
   const data = result ?? {};
+  const showPdfWarning = searchParams.get("pdfWarning") === "1";
 
   // Debug logs
   useEffect(() => {
@@ -193,6 +196,15 @@ export default function ResumeMatchSummary() {
   return (
     <main className="min-h-screen bg-[#040407] text-slate-100">
       <div className="mx-auto max-w-7xl px-2 py-6 sm:px-6 lg:px-8">
+        {showPdfWarning && (
+          <section className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
+            <p className="font-semibold">PDF report unavailable</p>
+            <p className="mt-1 text-amber-100/80">
+              Your analysis is ready, but the PDF report could not be generated right now. The analysis below is still available.
+            </p>
+          </section>
+        )}
+
         <header className="flex flex-col gap-5 border-b border-slate-800 pb-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">AI resume assessment</p>

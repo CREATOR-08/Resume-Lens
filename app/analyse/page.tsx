@@ -51,12 +51,13 @@ const handleSubmit = async (e: React.FormEvent) => {
       }),
     });
 
+    const data = await saveResponse.json().catch(() => null);
+
     if (!saveResponse.ok) {
-      const data = await saveResponse.json().catch(() => null);
       throw new Error(data?.error || "Failed to save analysis");
     }
 
-    router.push("/summary");
+    router.push(data?.pdfWarning ? "/summary?pdfWarning=1" : "/summary");
 
   } catch (error) {
     console.error(error);

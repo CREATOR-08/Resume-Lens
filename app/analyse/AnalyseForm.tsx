@@ -29,24 +29,34 @@ export default function AnalyseForm() {
       setLoading(true);
 
       const result = await bridge(resumeFile, jdFile, role, jobDescription);
+      let pdfWarning = false;
 
-      await fetch("/api/analysis", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          report: result.report,
-          role,
-          resumeFileName: resumeFile.name,
-        }),
-      }).then(async (response) => {
+      try {
+        const response = await fetch("/api/analysis", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            report: result.report,
+            role,
+            resumeFileName: resumeFile.name,
+          }),
+        });
+
+        const data = await response.json().catch(() => null);
+
         if (!response.ok) {
-          const data = await response.json().catch(() => null);
-          throw new Error(data?.error || "Failed to save analysis");
+          console.error("Failed to save analysis PDF:", data?.error || response.statusText);
+          pdfWarning = true;
+        } else {
+          pdfWarning = Boolean(data?.pdfWarning);
         }
-      });
+      } catch (error) {
+        console.error("Analysis PDF save request failed:", error);
+        pdfWarning = true;
+      }
 
-      router.push("/summary");
+      router.push(pdfWarning ? "/summary?pdfWarning=1" : "/summary");
     } catch (error) {
       console.error(error);
       alert(error instanceof Error ? error.message : "Analysis failed");

@@ -79,39 +79,62 @@ export async function POST(req: NextRequest) {
       score,
       userName: user.name || user.email,
     });
-    const pdf = await createAnalysisPdf(html);
-    const pdfUrl = await uploadPdfToSupabase(pdf, pdfPath);
+
+    let pdfUrl = "";
+    let pdfWarning = false;
+    let pdfError: string | null = null;
+
+    try {
+      const pdf = await createAnalysisPdf(html);
+      pdfUrl = await uploadPdfToSupabase(pdf, pdfPath);
+    } catch (error) {
+      pdfWarning = true;
+      pdfError = error instanceof Error ? error.message : "Unknown PDF generation error";
+      console.error("PDF generation/upload failed:", error);
+    }
+
     try {
       await sendReportEmail({
         email: user.email,
         name: user.name || undefined,
-        pdfUrl,
+        pdfUrl: pdfUrl ,
       });
     } catch (err) {
       console.error("Email failed:", err);
     }
-    const analysis = await prisma.analysis.create({
-      data: {
-        pdfUrl,
-        score,
-        userId: user.id,
-      },
-    });
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        analysis_count: {
-          increment: 1,
+    let analysis = null;
+
+    try {
+      analysis = await prisma.analysis.create({
+        data: {
+          pdfUrl,
+          score,
+          userId: user.id,
         },
-      },
-    });
+      });
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          analysis_count: {
+            increment: 1,
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Failed to persist analysis record:", error);
+    }
 
     return NextResponse.json({
-      message: "Analysis PDF saved",
-      analysisId: analysis.id,
-      pdfUrl,
+      message: pdfWarning
+        ? "Analysis completed, but the PDF report could not be generated."
+        : "Analysis PDF saved",
+      analysisId: analysis?.id ?? null,
+      pdfUrl: pdfUrl || null,
       score,
+      pdfWarning,
+      pdfError,
     });
   } catch (error) {
     console.error("Save analysis PDF error:", error);
