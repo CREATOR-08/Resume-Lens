@@ -20,13 +20,16 @@ const bridge = async (
   formData.append("role", role);
   formData.append("jobDescription", jobDescription);
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_AI_SERVICES}`,
-    {
-      method: "POST",
-      body: formData,
-    }
-  );
+  const aiServiceUrl = process.env.NEXT_PUBLIC_AI_SERVICES?.replace(/\/$/, "");
+
+  if (!aiServiceUrl) {
+    throw new Error("AI service URL is not configured");
+  }
+
+  const response = await fetch(`${aiServiceUrl}/analyse`, {
+    method: "POST",
+    body: formData,
+  });
 
   if (!response.ok) {
     throw new Error("Failed to analyze resume");
