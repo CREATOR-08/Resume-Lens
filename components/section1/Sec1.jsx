@@ -9,20 +9,20 @@ import ResumeLensHero from '../ResumeLensHero';
  * @param {{ initialUser?: SectionInitialUser }} props
  */
 
-const Sec1 = ({ initialUser = null }) => {
+const Sec1 = () => {
   return (
     <>
     <ResumeLensHero
 
-                resumeImage="/animation/resume.jfif"
+                resumeImage="/animation/resume.jpg"
 
                 scoreImage="/animation/score.jpg"
 
-                recommendationImage="/animation/recommendation.jfif"
+                recommendationImage="/animation/recommendation.jpg"
 
-                skillsImage="/animation/skills.jfif"
+                skillsImage="/animation/skills.jpg"
 
-                summaryImage="/animation/summary.jfif"
+                summaryImage="/animation/summary.jpg"
 
               />
     </>
