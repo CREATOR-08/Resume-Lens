@@ -6,9 +6,8 @@ AI-powered resume analysis platform that evaluates resumes against job descripti
 
 ## 🚀 Live Demo
 
-**Website:** [https://resume-analyzer-sp89.onrender.com/]
-
-**Video Demo:** [coming soon...]
+**Website:** [https://resume-lens-chi.vercel.app]
+**ResumeLens AI Services:**[https://github.com/CREATOR-08/resume-lens-backend]
 
 ---
 
